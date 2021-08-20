@@ -92,8 +92,11 @@ if(MAGNUM_TINYGLTFIMPORTER_BUILD_STATIC)
     target_sources(TinyGltfImporter INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/importStaticPlugin.cpp)
 endif()
 
-if(BUILD_TESTS)
+# if(BUILD_TESTS)
+if (1)
     add_subdirectory(Test)
+else()
+    message( FATAL_ERROR "not building TinyGltfImporter test!" )
 endif()
 
 # MagnumPlugins TinyGltfImporter target alias for superprojects
