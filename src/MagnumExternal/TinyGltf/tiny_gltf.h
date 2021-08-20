@@ -4381,6 +4381,9 @@ static bool ParsePrimitive(Primitive *primitive, Model *model, std::string *err,
   int indices = -1;
   ParseIntegerProperty(&indices, err, o, "indices", false);
   primitive->indices = indices;
+  if (err) {
+    (*err) += "indices: " + std::to_string(indices) + "\n";
+  }
   if (!ParseStringIntegerProperty(&primitive->attributes, err, o, "attributes",
                                   true, "Primitive")) {
     return false;
@@ -4438,6 +4441,10 @@ static bool ParsePrimitive(Primitive *primitive, Model *model, std::string *err,
   (void)model;
 #endif
 
+  if (err) {
+    (*err) += "primitive->indices: " + std::to_string(primitive->indices) + "\n";
+  }
+
   return true;
 }
 
@@ -4461,6 +4468,12 @@ static bool ParseMesh(Mesh *mesh, Model *model, std::string *err, const json &o,
     }
   }
 
+  if (mesh->primitives.size()) {
+    if (err) {
+      (*err) += "mesh->primitives.back().indices: " + std::to_string(mesh->primitives.back().indices) + "\n";
+    }
+  }    
+
   // Should probably check if has targets and if dimensions fit
   ParseNumberArrayProperty(&mesh->weights, err, o, "weights", false);
 
@@ -4481,6 +4494,12 @@ static bool ParseMesh(Mesh *mesh, Model *model, std::string *err, const json &o,
       }
     }
   }
+
+  if (mesh->primitives.size()) {
+    if (err) {
+      (*err) += "2 mesh->primitives.back().indices: " + std::to_string(mesh->primitives.back().indices) + "\n";
+    }
+  }    
 
   return true;
 }
@@ -5516,6 +5535,11 @@ bool TinyGLTF::LoadFromString(Model *model, std::string *err, std::string *warn,
       }
 
       model->meshes.emplace_back(std::move(mesh));
+
+      if (err) {
+        (*err) += "model->meshes.back().primitives.back().indices: " + std::to_string(model->meshes.back().primitives.back().indices) + "\n";
+      }
+
       return true;
     });
 
@@ -5524,14 +5548,31 @@ bool TinyGLTF::LoadFromString(Model *model, std::string *err, std::string *warn,
     }
   }
 
+  if (err) {
+    (*err) += "2 model->meshes.back().primitives.back().indices: " + std::to_string(model->meshes.back().primitives.back().indices) + "\n";
+  }
+
   // Assign missing bufferView target types
   // - Look for missing Mesh indices
   // - Look for missing bufferView targets
   for (auto &mesh : model->meshes) {
+
+    if (err) {
+      (*err) += "mesh.primitives.back().indices: " + std::to_string(mesh.primitives.back().indices) + "\n";
+    }
+
     for (auto &primitive : mesh.primitives) {
+
+      if (err) {
+        (*err) += "primitive.indices: " + std::to_string(primitive.indices) + "\n";
+      }
+
       if (primitive.indices >
           -1)  // has indices from parsing step, must be Element Array Buffer
       {
+        (*err) += "size_t(primitive.indices): " + std::to_string(size_t(primitive.indices)) + "\n";
+        (*err) += "model->accessors.size(): " + std::to_string(model->accessors.size()) + "\n";
+
         if (size_t(primitive.indices) >= model->accessors.size()) {
           if (err) {
             (*err) += "primitive indices accessor out of bounds";

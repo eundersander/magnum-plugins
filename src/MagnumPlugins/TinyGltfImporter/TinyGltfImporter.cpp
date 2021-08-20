@@ -325,6 +325,8 @@ void TinyGltfImporter::doOpenData(const Containers::ArrayView<const char> data) 
         Error{} << "Trade::TinyGltfImporter::openData(): error opening file:" << err;
         doClose();
         return;
+    } else {
+      Error{} << "Trade::TinyGltfImporter::openData(): no error but here's the err string: " << err;
     }
 
     /* Bounds checks that can't be deferred to later. No, tinygltf doesn't
