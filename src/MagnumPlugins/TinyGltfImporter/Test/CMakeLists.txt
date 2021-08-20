@@ -126,6 +126,7 @@ corrade_add_test(TinyGltfImporterTest
         přívodní-šňůra.png
         scene.gltf
         scene.glb
+        Lantern.glb
         scene-nodefault.gltf
         scene-nodefault.glb
         scene-invalid.gltf
