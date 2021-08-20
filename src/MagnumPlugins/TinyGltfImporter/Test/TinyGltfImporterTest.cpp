@@ -102,6 +102,8 @@ struct TinyGltfImporterTest: TestSuite::Tester {
     void sceneInvalidScene();
     void sceneInvalidDefaultScene();
 
+    void extraScenes();
+
     void objectTransformation();
     void objectTransformationQuaternionNormalizationEnabled();
     void objectTransformationQuaternionNormalizationDisabled();
@@ -476,6 +478,8 @@ TinyGltfImporterTest::TinyGltfImporterTest() {
                        &TinyGltfImporterTest::sceneEmpty,
                        &TinyGltfImporterTest::sceneNoDefault},
                       Containers::arraySize(SingleFileData));
+
+    addTests({&TinyGltfImporterTest::extraScenes});
 
     addTests({&TinyGltfImporterTest::sceneInvalidMesh});
 
@@ -1526,6 +1530,24 @@ void TinyGltfImporterTest::sceneInvalidDefaultScene() {
     CORRADE_VERIFY(!importer->openFile(Utility::Directory::join(TINYGLTFIMPORTER_TEST_DIR,
         "scene-invalid-default.gltf")));
     CORRADE_COMPARE(out.str(), "Trade::TinyGltfImporter::openData(): scene index 0 out of bounds for 0 scenes\n");
+}
+
+void TinyGltfImporterTest::extraScenes() {
+    setTestCaseDescription("extraScenes");
+
+    Containers::Pointer<AbstractImporter> importer = _manager.instantiate("TinyGltfImporter");
+    CORRADE_VERIFY(importer->openFile(Utility::Directory::join(TINYGLTFIMPORTER_TEST_DIR,
+        "Lantern.glb")));
+
+    {
+        auto object = importer->object3D("LanternPole_Body");
+        CORRADE_VERIFY(object);
+        CORRADE_VERIFY(object->importerState());
+        CORRADE_COMPARE(object->instanceType(), ObjectInstanceType3D::Mesh);
+        CORRADE_COMPARE(static_cast<MeshObjectData3D&>(*object).material(), 0);
+        CORRADE_COMPARE(static_cast<MeshObjectData3D&>(*object).skin(), -1);
+        CORRADE_VERIFY(object->children().empty());
+    }
 }
 
 void TinyGltfImporterTest::objectTransformation() {
